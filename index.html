@@ -1,0 +1,138 @@
+<form id="schema-form">
+  
+    <label for="type">Type:</label>
+    <select id="type" name="@type">
+        <option value="" selected disabled>Select Article Type</option>
+      <option value="Article">Article</option>
+      <option value="NewsArticle">News Article</option>
+      <option value="BlogPosting">Blog Posting</option>
+    </select><br><br>
+    
+    <label for="url">URL:</label><br>
+    <input type="text" id="url" name="url"><br><br>
+    
+    <label for="headline">Headline:</label><br>
+    <input type="text" id="headline" name="headline"><br><br>
+    
+    <label for="image">Image URL:</label><br>
+    <input type="text" id="image" name="image"><br><br>
+    
+    <label for="description">Short Description:</label><br>
+    <textarea id="description" name="description"></textarea><br><br>
+    
+    <label for="author-type">Author Type:</label>
+    <select id="author-type" name="author-type">
+        <option value="" selected disabled>Select Author Type</option>
+      <option value="Person">Person</option>
+      <option value="Organization">Organization</option>
+    </select><br><br>
+    
+    <label for="author-name">Author Name:</label><br>
+    <input type="text" id="author-name" name="author-name"><br><br>
+    
+    <label for="author-url">Author URL:</label><br>
+    <input type="text" id="author-url" name="author-url"><br><br>
+    
+    <label for="publisher">Publisher:</label><br>
+<input type="text" id="publisher" name="publisher"><br><br>
+
+<label for="publisher-logo">Publisher URL:</label><br>
+<input type="text" id="publisher-logo" name="publisher-logo"><br><br>
+
+    
+    <label for="date-published">Date Published:</label>
+    <input type="date" id="date-published" name="date-published"><br><br>
+    
+    <label for="date-modified">Date Modified:</label>
+    <input type="date" id="date-modified" name="date-modified"><br><br>
+    
+    
+
+    
+  </form>
+<button id="copy-button" type="button">Copy Output</button>
+  <button onclick="window.open('https://validator.schema.org/', '_blank')">Validate Schema</button>
+  <div id="output"></div>
+
+  <script>
+   const form = document.querySelector('#schema-form');
+const output = document.querySelector('#output');
+const copyButton = document.querySelector('#copy-button');
+
+
+form.addEventListener('input', updateOutput);
+copyButton.addEventListener('click', copyOutput);
+
+function updateOutput() {
+  const data = {};
+
+  data['@context'] = 'https://schema.org';
+  data['@type'] = form.elements['@type'].value;
+  data['mainEntityOfPage'] = {
+    '@type': 'WebPage',
+    '@id': form.elements['url'].value,
+  };
+
+  if (form.elements['headline'].value) {
+    data['headline'] = form.elements['headline'].value;
+  }
+
+  if (form.elements['image'].value) {
+    data['image'] = form.elements['image'].value;
+  }
+
+  if (form.elements['description'].value) {
+    data['description'] = form.elements['description'].value;
+  }
+
+  const authorType = form.elements['author-type'].value;
+  if (authorType && form.elements['author-name'].value && form.elements['author-url'].value) {
+    data['author'] = {
+      '@type': authorType,
+      'name': form.elements['author-name'].value,
+      'url': form.elements['author-url'].value,
+    };
+  }
+
+  if (form.elements['publisher'].value && form.elements['publisher-logo'].value) {
+    data['publisher'] = {
+      '@type': 'Organization',
+      'name': form.elements['publisher'].value,
+      'logo': {
+        '@type': 'ImageObject',
+        'url': form.elements['publisher-logo'].value,
+      },
+    };
+  }
+
+  if (form.elements['date-published'].value) {
+    data['datePublished'] = form.elements['date-published'].value;
+  }
+
+  if (form.elements['date-modified'].value) {
+    data['dateModified'] = form.elements['date-modified'].value;
+  }
+
+  
+
+  const outputString = JSON.stringify(data, null, 2);
+          const outputHTML = `<pre>&lt;script type="application/ld+json"&gt;\n${outputString}\n&lt;/script&gt;</pre>`;
+          output.innerHTML = outputHTML;
+
+
+}
+
+function copyOutput() {
+  const outputText = document.querySelector('#output pre').innerText;
+  const tempTextarea = document.createElement('textarea');
+  tempTextarea.value = outputText;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempTextarea);
+  alert('Output copied to clipboard!');
+}
+
+
+
+  </script>
